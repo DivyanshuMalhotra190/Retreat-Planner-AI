@@ -1,4 +1,4 @@
-# 🌿 Retreat Concierge AI
+# 🌿 Retreat Planner AI
 
 A state-driven chatbot designed for a wellness retreat platform.
 It helps users plan retreats or explore individual healing sessions through a guided, conversational experience.
@@ -46,7 +46,3 @@ npm run dev
 *Add your Vercel link here*
 
 ---
-
-## 📹 Loom
-
-*Add your Loom link here*

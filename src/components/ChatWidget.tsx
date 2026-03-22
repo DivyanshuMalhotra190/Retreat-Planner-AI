@@ -47,8 +47,16 @@ export const ChatWidget: React.FC = () => {
   const [flowState, setFlowState] = useState<FlowState>('idle');
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [userPreferences, setUserPreferences] = useState<{ days?: string; budget?: string; selectedPackageId?: string }>({});
+  const [isMobile, setIsMobile] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     // Initialize suggestions on mount
@@ -328,21 +336,30 @@ Retreat Details:
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            initial={{ 
+              opacity: 0, 
+              y: 20, 
+              scale: 0.95,
+              width: isMobile ? '100vw' : '380px',
+              height: isMobile ? '100vh' : '650px',
+              bottom: isMobile ? '0' : '24px',
+              right: isMobile ? '0' : '24px',
+              borderRadius: isMobile ? '0' : '1rem'
+            }}
             animate={{ 
               opacity: 1, 
               y: 0, 
               scale: 1,
-              width: isExpanded ? '50vw' : '380px',
-              height: isExpanded ? '100vh' : '650px',
-              maxHeight: isExpanded ? '100vh' : 'calc(100vh - 48px)',
-              bottom: isExpanded ? '0' : '24px',
-              right: isExpanded ? '0' : '24px',
-              borderRadius: isExpanded ? '0' : '1rem'
+              width: isMobile ? '100vw' : (isExpanded ? '50vw' : '380px'),
+              height: isMobile ? '100vh' : (isExpanded ? '100vh' : '650px'),
+              maxHeight: isMobile ? '100vh' : (isExpanded ? '100vh' : 'calc(100vh - 48px)'),
+              bottom: isMobile ? '0' : (isExpanded ? '0' : '24px'),
+              right: isMobile ? '0' : (isExpanded ? '0' : '24px'),
+              borderRadius: isMobile ? '0' : (isExpanded ? '0' : '1rem')
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className={`fixed bg-white shadow-2xl border border-gray-100 flex flex-col overflow-hidden z-50 origin-bottom-right ${isExpanded ? '' : 'rounded-2xl bottom-6 right-6'}`}
+            className="fixed bg-white shadow-2xl border border-gray-100 flex flex-col overflow-hidden z-50 origin-bottom-right"
           >
             {/* Header */}
             <div className="px-5 py-4 bg-white border-b border-gray-100 flex items-center justify-between shrink-0">
@@ -366,12 +383,14 @@ Retreat Details:
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <button 
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="p-2 hover:bg-gray-50 rounded-full transition-colors"
-                >
-                  {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-                </button>
+                {!isMobile && (
+                  <button 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="p-2 hover:bg-gray-50 rounded-full transition-colors"
+                  >
+                    {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                  </button>
+                )}
                 <button 
                   onClick={() => setIsOpen(false)}
                   className="p-2 hover:bg-gray-50 rounded-full transition-colors"

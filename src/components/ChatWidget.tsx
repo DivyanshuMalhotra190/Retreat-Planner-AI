@@ -6,14 +6,16 @@ import { TypingIndicator } from './TypingIndicator';
 import { retreatPackages, individualSessions, faqs, staffContacts, itineraryTemplates } from '../data/knowledgeBase';
 import { MessageSquare, X, Maximize2, Minimize2, Sparkles, Trash2 } from 'lucide-react';
 
-const INITIAL_SUGGESTIONS = [
-  "What services do you provide?",
-  "Pricing",
-  "Contact Staff",
-  "Is there parking available?",
-  "What should I bring?",
-  "Do you offer hotel stays?"
-];
+const getInitialSuggestions = () => {
+  const fixedStart = "What services do you provide?";
+  const fixedEnd = "Contact Staff";
+  
+  const faqQuestions = faqs.map(f => f.question);
+  const shuffled = [...faqQuestions].sort(() => Math.random() - 0.5);
+  const randomFaqs = shuffled.slice(0, 4);
+  
+  return [fixedStart, ...randomFaqs, fixedEnd];
+};
 
 type FlowState = 
   | 'idle' 
@@ -43,10 +45,22 @@ export const ChatWidget: React.FC = () => {
   });
   const [isTyping, setIsTyping] = useState(false);
   const [flowState, setFlowState] = useState<FlowState>('idle');
-  const [suggestedQuestions, setSuggestedQuestions] = useState(INITIAL_SUGGESTIONS);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const [userPreferences, setUserPreferences] = useState<{ days?: string; budget?: string; selectedPackageId?: string }>({});
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Initialize suggestions on mount
+    setSuggestedQuestions(getInitialSuggestions());
+  }, []);
+
+  useEffect(() => {
+    // Shuffle suggestions when reopening chat if at the start
+    if (isOpen && messages.length === 1) {
+      setSuggestedQuestions(getInitialSuggestions());
+    }
+  }, [isOpen]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,13 +88,13 @@ export const ChatWidget: React.FC = () => {
   const clearChat = () => {
     setMessages([]);
     setFlowState('idle');
-    setSuggestedQuestions(INITIAL_SUGGESTIONS);
+    setSuggestedQuestions(getInitialSuggestions());
   };
 
   const processMessage = (text: string) => {
     const lowerText = text.toLowerCase();
     let botResponse: Message = { id: (Date.now() + 1).toString(), role: 'bot' };
-    let nextSuggestions = INITIAL_SUGGESTIONS;
+    let nextSuggestions = getInitialSuggestions();
 
     const isServiceInquiry = lowerText.includes('service') || lowerText.includes('provide') || lowerText.includes('what do you do');
     const isContactInquiry = lowerText.includes('contact') || lowerText.includes('staff') || lowerText.includes('speak');

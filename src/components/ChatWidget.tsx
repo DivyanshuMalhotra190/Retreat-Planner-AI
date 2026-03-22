@@ -112,15 +112,20 @@ Retreat Details:
         setMessages(prev => [...prev, {
           id: Date.now().toString(),
           role: 'bot',
-          text: "Would you like to book this retreat, or explore other options?"
+          text: "Would you like to book this retreat, schedule a pre-retreat call, or explore other options?"
         }]);
       }, 800);
 
-      nextSuggestions = ["Book this retreat", "Other retreat packages", "Individual sessions", "Contact Staff"];
+      nextSuggestions = ["Book this retreat", "Schedule a pre-retreat call", "Other retreat packages", "Individual sessions", "Contact Staff"];
     }
     else if (lowerText.includes('book this retreat') || lowerText.includes('book now')) {
       botResponse.text = "Wonderful! To finalize your booking and select your dates, I will connect you with one of our wellness planners.";
       botResponse.contacts = staffContacts;
+      setFlowState('idle');
+      nextSuggestions = ["What services do you provide?", "Pricing", "Contact Staff"];
+    }
+    else if (lowerText.includes('schedule a pre-retreat call') || lowerText.includes('schedule call')) {
+      botResponse.text = "Your pre-retreat call has been scheduled! Our team will reach out to you shortly with the meeting details.";
       setFlowState('idle');
       nextSuggestions = ["What services do you provide?", "Pricing", "Contact Staff"];
     }
@@ -208,11 +213,11 @@ Retreat Details:
           setMessages(prev => [...prev, {
             id: Date.now().toString(),
             role: 'bot',
-            text: "Would you like to book this retreat, or explore other options?"
+            text: "Would you like to book this retreat, schedule a pre-retreat call, or explore other options?"
           }]);
         }, 800);
 
-        nextSuggestions = ["Book this retreat", "Other retreat packages", "Individual sessions", "Contact Staff"];
+        nextSuggestions = ["Book this retreat", "Schedule a pre-retreat call", "Other retreat packages", "Individual sessions", "Contact Staff"];
       } else {
         setFlowState('asking_retreat_preferences');
         botResponse.text = "No problem. Would you like to explore other retreat lengths or look at individual sessions?";
@@ -373,17 +378,6 @@ Retreat Details:
                   <p className="text-sm text-gray-500 mb-6">
                     I'm Aria, your Wellness Planner. Ask me about our retreats, pricing, or individual sessions.
                   </p>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {INITIAL_SUGGESTIONS.slice(0, 3).map((q, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSend(q)}
-                        className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
                 </div>
               ) : (
                 <>
